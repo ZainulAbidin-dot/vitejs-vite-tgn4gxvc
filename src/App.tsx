@@ -1,6 +1,8 @@
 import generatePDF, { Resolution, Margin, Options } from 'react-to-pdf';
 import { Template01 } from './templates/template-01';
 import { useRef } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const options: Options = {
   filename: 'advanced-options.pdf',
@@ -41,8 +43,62 @@ const options: Options = {
 
 const App = () => {
   const templateRef = useRef<HTMLDivElement>(null);
-  const toPDF = () => {
-    generatePDF(templateRef, options);
+  const toPDF = async () => {
+    console.log('Generating PDF...', templateRef.current);
+
+    if (!templateRef.current) {
+      console.error('Template ref is null');
+      return;
+    }
+
+    // Get all page elements (they have the data-page attribute)
+    const pages = templateRef.current.querySelectorAll('[data-page]');
+    
+    if (pages.length === 0) {
+      console.error('No pages found in template');
+      return;
+    }
+
+    console.log(`Found ${pages.length} pages`);
+
+    // Create PDF with letter format
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'letter',
+    });
+
+    // Process each page
+    for (let i = 0; i < pages.length; i++) {
+      console.log(`Processing page ${i + 1}/${pages.length}`);
+      
+      const pageElement = pages[i] as HTMLElement;
+      
+      // Capture the page as canvas
+      const canvas = await html2canvas(pageElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Add new page if not the first page
+      if (i > 0) {
+        pdf.addPage();
+      }
+
+      // Letter size in mm: 215.9 x 279.4
+      const pdfWidth = 215.9;
+      const pdfHeight = 279.4;
+      
+      // Add image to PDF, fitting to page size
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    }
+
+    pdf.save('advanced-options.pdf');
+    console.log('PDF generated successfully');
   };
   return (
     <div>

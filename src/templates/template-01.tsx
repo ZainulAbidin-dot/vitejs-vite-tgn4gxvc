@@ -11,7 +11,7 @@ import {
   PenTool,
   type LucideIcon,
 } from 'lucide-react';
-import React, { RefObject } from 'react';
+import React from 'react';
 
 // --- Components ---
 
@@ -27,6 +27,7 @@ const Page = ({
   className?: string;
 }) => (
   <div
+    data-page={pageNumber}
     className={`relative w-full max-w-[210mm] min-h-[297mm] mx-auto bg-white shadow-2xl print:shadow-none print:w-full print:min-h-screen flex flex-col p-12 mb-8 print:mb-0 print:break-after-page ${className}`}
   >
     {/* Page Content */}
@@ -49,7 +50,7 @@ const SectionHeader = ({
 }: {
   title: string;
   subtitle: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
 }) => (
   <div className="mb-8 border-b-2 border-blue-900 pb-4">
     <div className="flex items-center gap-3 mb-2">
@@ -122,11 +123,7 @@ const ContactItem = ({
 
 // --- Main Application ---
 
-export const Template01 = ({
-  ref,
-}: {
-  ref: RefObject<HTMLDivElement | null>;
-}) => {
+export const Template01 = React.forwardRef<HTMLDivElement>((_props, ref) => {
   return (
     <div
       className="bg-slate-100 min-h-screen py-8 print:bg-white print:p-0 font-sans text-slate-800"
@@ -906,4 +903,4 @@ export const Template01 = ({
       </Page>
     </div>
   );
-};
+});
